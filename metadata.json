@@ -1,0 +1,8 @@
+{
+  "name": "964 Media Hashtag Generator",
+  "description": "A clever tool that uses AI to generate viral, context-aware TikTok hashtags from video captions for 964 Media.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
