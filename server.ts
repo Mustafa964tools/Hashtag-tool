@@ -3,6 +3,16 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 
+const models = [
+  "gemini-3.1-flash-lite",
+  "gemini-3-flash-preview",
+  "gemini-3.1-pro-preview",
+  "gemini-2.5-pro",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite"
+];
+let currentModelIndex = Math.floor(Math.random() * models.length);
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -62,8 +72,11 @@ async function startServer() {
         Text: "${caption}"`;
       }
 
+      const randomModel = models[currentModelIndex];
+      currentModelIndex = (currentModelIndex + 1) % models.length;
+
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: randomModel,
         contents: prompt,
       });
 

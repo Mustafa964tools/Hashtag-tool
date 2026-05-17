@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Copy, Check, Hash, Sparkles, Youtube, AlignRight, RefreshCw, Heart } from 'lucide-react';
+import { Loader2, Copy, Check, Hash, Sparkles, Youtube, AlignRight, RefreshCw, Heart, Trash2 } from 'lucide-react';
 
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg 
@@ -44,14 +44,15 @@ export default function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate hashtags');
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || 'Failed to generate hashtags');
       }
 
       const data = await response.json();
       setHashtags(data.hashtags);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('هەڵەیەک ڕوویدا لە کاتی دروستکردنەکە. تکایە سەرلەنوێ هەوڵبدەرەوە.');
+      setError(err.message || 'هەڵەیەک ڕوویدا لە کاتی دروستکردنەکە. تکایە سەرلەنوێ هەوڵبدەرەوە.');
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +70,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center py-12 px-4 md:px-8 font-sans selection:bg-[#E54825]/30 selection:text-white" dir="rtl">
+    <div className="min-h-screen w-full overflow-x-hidden bg-neutral-950 text-white flex flex-col items-center py-12 px-4 md:px-8 font-sans selection:bg-[#E54825]/30 selection:text-white" dir="rtl">
       
       {/* Background ambient light */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#E54825]/10 blur-[120px] pointer-events-none" />
@@ -125,13 +126,24 @@ export default function App() {
             
             {/* Left/Top Column: Input */}
             <div className="flex flex-col space-y-5">
-              <div className="flex items-center gap-3 mb-2 px-2">
-                <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center">
-                  <AlignRight className="w-4 h-4 text-neutral-400" />
+              <div className="flex items-center justify-between mb-2 px-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center">
+                    <AlignRight className="w-4 h-4 text-neutral-400" />
+                  </div>
+                  <label htmlFor="content-input" className="text-lg font-medium text-neutral-200">
+                    {platform === 'tiktok' ? 'کاپشنی ڤیدیۆ' : 'دەق و زانیاری ڕێکخراو'}
+                  </label>
                 </div>
-                <label htmlFor="content-input" className="text-lg font-medium text-neutral-200">
-                  {platform === 'tiktok' ? 'کاپشنی ڤیدیۆ' : 'دەق و زانیاری ڕێکخراو'}
-                </label>
+                {caption && (
+                  <button
+                    onClick={() => { setCaption(''); setHashtags(''); setError(''); }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>سڕینەوە</span>
+                  </button>
+                )}
               </div>
               
               <div className="relative group flex-grow flex flex-col">

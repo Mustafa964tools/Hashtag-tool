@@ -1,5 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 
+const models = [
+  "gemini-3.1-flash-lite",
+  "gemini-3-flash-preview",
+  "gemini-3.1-pro-preview",
+  "gemini-2.5-pro",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite"
+];
+let currentModelIndex = Math.floor(Math.random() * models.length);
+
 export const handler = async (event: any, context: any) => {
   // Only allow POST
   if (event.httpMethod !== "POST") {
@@ -64,8 +74,11 @@ export const handler = async (event: any, context: any) => {
       Text: "${caption}"`;
     }
 
+    const randomModel = models[currentModelIndex];
+    currentModelIndex = (currentModelIndex + 1) % models.length;
+
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: randomModel,
       contents: prompt,
     });
 
@@ -78,8 +91,17 @@ export const handler = async (event: any, context: any) => {
       },
       body: JSON.stringify({ hashtags: cleanHashtags }),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating hashtags:", error);
+    
+    // Handle 429 Rate Limit
+    if (error?.status === 429 || error?.message?.includes("429")) {
+      return {
+        statusCode: 429,
+        body: JSON.stringify({ error: "سیستەمەکە ئێستا سەرقاڵە یان سنوری بەکارهێنانی تێپەڕاندووە. تکایە کەمێکی تر دووبارە هەوڵ بدەرەوە." })
+      };
+    }
+
     return { 
       statusCode: 500, 
       body: JSON.stringify({ error: "Failed to generate hashtags due to an internal error." }) 
